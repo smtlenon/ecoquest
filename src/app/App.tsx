@@ -8,10 +8,34 @@ import { Rewards } from './components/Rewards';
 import { ActionSubmission } from './components/ActionSubmission';
 import { OpeningPage } from './components/OpeningPage';
 import { DashboardTransition } from './components/DashboardTransition';
-import { CURRENT_USER, MISSIONS, FEED_ITEMS, User, Mission } from './data';
+import { AppData, FRESH_USER, HERO_MISSIONS, HERO_USER, Mission, MISSIONS, RewardItem, User } from './data';
+import { loadAppData, saveAppData } from './services/appDataService';
 import { Toaster, toast } from 'sonner';
 import Confetti from 'react-confetti';
 import { AnimatePresence, motion } from 'motion/react';
+
+const upsertUserInLeaderboard = (leaderboard: User[], user: User): User[] => {
+  const withoutCurrent = leaderboard.filter((entry) => entry.id !== user.id);
+  return [user, ...withoutCurrent];
+};
+
+const getSavedUser = (): User => {
+  try {
+    const saved = localStorage.getItem('ecoquest-user');
+    return saved ? (JSON.parse(saved) as User) : FRESH_USER;
+  } catch {
+    return FRESH_USER;
+  }
+};
+
+const getSavedMissions = (): Mission[] => {
+  try {
+    const saved = localStorage.getItem('ecoquest-missions');
+    return saved ? (JSON.parse(saved) as Mission[]) : MISSIONS;
+  } catch {
+    return MISSIONS;
+  }
+};
 
 function useWindowSize() {
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
@@ -26,17 +50,72 @@ function useWindowSize() {
 }
 
 export default function App() {
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasOnboarded, setHasOnboarded] = useState(() => {
+    return localStorage.getItem('ecoquest-onboarded') === 'true';
+  });
+  const [hasStarted, setHasStarted] = useState(hasOnboarded);
   const [isStarting, setIsStarting] = useState(false);
   const [currentTab, setCurrentTab] = useState('home');
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [isSubmissionOpen, setIsSubmissionOpen] = useState(false);
-
-  const [user, setUser] = useState<User>(CURRENT_USER);
-  const [missions, setMissions] = useState<Mission[]>(MISSIONS);
+  const [appData, setAppData] = useState<AppData | null>(null);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const { width, height } = useWindowSize();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    loadAppData()
+      .then((loaded) => {
+        if (isMounted) {
+          const user = getSavedUser();
+          const missions = getSavedMissions();
+
+          setAppData({
+            ...loaded,
+            user,
+            missions,
+            leaderboard: upsertUserInLeaderboard(loaded.leaderboard, user),
+          });
+        }
+      })
+      .catch(() => {
+        toast.error('Could not load app data.');
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsDataLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('ecoquest-onboarded', String(hasOnboarded));
+  }, [hasOnboarded]);
+
+  useEffect(() => {
+    if (!appData) return;
+    localStorage.setItem('ecoquest-user', JSON.stringify(appData.user));
+  }, [appData?.user]);
+
+  useEffect(() => {
+    if (!appData) return;
+    localStorage.setItem('ecoquest-missions', JSON.stringify(appData.missions));
+  }, [appData?.missions]);
+
+  useEffect(() => {
+    if (!appData) return;
+
+    saveAppData(appData).catch(() => {
+      toast.error('Failed to save your latest changes.');
+    });
+  }, [appData]);
 
   useEffect(() => {
     const setViewportHeight = () => {
@@ -60,63 +139,152 @@ export default function App() {
     setIsSubmissionOpen(true);
   };
 
-  const handleMissionComplete = (missionId: string) => {
-    setMissions((prev) => prev.map((mission) =>
-      mission.id === missionId ? { ...mission, completed: true } : mission
-    ));
+  const handleMissionComplete = (mission: Mission) => {
+    setAppData((prev) => {
+      if (!prev) return prev;
 
-    const mission = missions.find((item) => item.id === missionId);
-    if (!mission) return;
+      const targetMission = prev.missions.find((item) => item.id === mission.id);
+      if (!targetMission || targetMission.completed) {
+        return prev;
+      }
 
-    setUser((prev) => ({
-      ...prev,
-      points: prev.points + mission.points,
-      streak: prev.streak + 1,
-    }));
+      const updatedUser = {
+        ...prev.user,
+        points: prev.user.points + targetMission.points,
+        streak: prev.user.streak + 1,
+      };
+
+      return {
+        ...prev,
+        user: updatedUser,
+        missions: prev.missions.map((item) =>
+          item.id === targetMission.id ? { ...item, completed: true } : item
+        ),
+        leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
+      };
+    });
 
     setShowConfetti(true);
     window.setTimeout(() => setShowConfetti(false), 4500);
   };
 
-  const handleRedeem = (cost: number, itemName: string) => {
-    setUser((prev) => ({
-      ...prev,
-      points: prev.points - cost,
-    }));
+  const handleRedeem = (item: RewardItem) => {
+    setAppData((prev) => {
+      if (!prev || prev.user.points < item.cost) return prev;
 
-    toast.success(`Redeemed: ${itemName}`);
+      const updatedUser = {
+        ...prev.user,
+        points: prev.user.points - item.cost,
+      };
+
+      return {
+        ...prev,
+        user: updatedUser,
+        leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
+      };
+    });
+
+    toast.success(`Redeemed: ${item.name}`);
     setShowConfetti(true);
     window.setTimeout(() => setShowConfetti(false), 3500);
   };
 
+  const canClaimDailyReward = (() => {
+    if (!appData?.dailyBonusClaimedAt) return true;
+
+    const claimed = new Date(appData.dailyBonusClaimedAt).toDateString();
+    const today = new Date().toDateString();
+    return claimed !== today;
+  })();
+
+  const handleClaimDailyReward = () => {
+    if (!appData) return;
+    if (!canClaimDailyReward) {
+      toast.info('Daily reward already claimed. Come back tomorrow.');
+      return;
+    }
+
+    setAppData((prev) => {
+      if (!prev) return prev;
+
+      const updatedUser = {
+        ...prev.user,
+        points: prev.user.points + 10,
+      };
+
+      return {
+        ...prev,
+        user: updatedUser,
+        dailyBonusClaimedAt: new Date().toISOString(),
+        leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
+      };
+    });
+
+    toast.success('Daily reward claimed: +10 points');
+  };
+
   const handleStart = () => {
     setIsStarting(true);
+    setHasOnboarded(true);
     window.setTimeout(() => {
       setHasStarted(true);
       setIsStarting(false);
     }, 1700);
   };
 
+  const handleFreshStart = () => {
+    localStorage.setItem('ecoquest-user', JSON.stringify(FRESH_USER));
+    localStorage.setItem('ecoquest-missions', JSON.stringify(MISSIONS));
+    localStorage.removeItem('ecoquest-onboarded');
+    window.location.reload();
+  };
+
+  const handleHeroState = () => {
+    localStorage.setItem('ecoquest-user', JSON.stringify(HERO_USER));
+    localStorage.setItem('ecoquest-missions', JSON.stringify(HERO_MISSIONS));
+    localStorage.setItem('ecoquest-onboarded', 'true');
+    window.location.reload();
+  };
+
   const renderCurrentTab = () => {
+    if (!appData) return null;
+
     if (currentTab === 'home') {
       return (
         <Home
-          user={user}
-          missions={missions}
-          feed={FEED_ITEMS}
+          user={appData.user}
+          missions={appData.missions}
+          feed={appData.feed}
           onMissionSelect={handleMissionSelect}
         />
       );
     }
 
-    if (currentTab === 'map') return <MapView />;
-    if (currentTab === 'rewards') return <Rewards user={user} onRedeem={handleRedeem} />;
-    if (currentTab === 'leaderboard') return <Leaderboard />;
-    return <Profile onNavigate={setCurrentTab} />;
+    if (currentTab === 'map') return <MapView hotspots={appData.hotspots} />;
+    if (currentTab === 'rewards') {
+      return (
+        <Rewards
+          user={appData.user}
+          rewards={appData.rewards}
+          canClaimDailyReward={canClaimDailyReward}
+          onClaimDailyReward={handleClaimDailyReward}
+          onRedeem={handleRedeem}
+        />
+      );
+    }
+    if (currentTab === 'leaderboard') return <Leaderboard users={appData.leaderboard} />;
+    return (
+      <Profile
+        user={appData.user}
+        onNavigate={setCurrentTab}
+        onFreshStart={handleFreshStart}
+        onHeroState={handleHeroState}
+      />
+    );
   };
 
   return (
-    <div className="bg-neutral-100 ios-app-shell flex justify-center font-sans text-gray-900 selection:bg-emerald-200">
+    <div className="bg-neutral-100 ios-app-shell flex min-h-[100dvh] justify-center font-sans text-gray-900 selection:bg-emerald-200">
       <Toaster position="top-center" richColors />
 
       {showConfetti && (
@@ -134,6 +302,10 @@ export default function App() {
           <OpeningPage onStart={handleStart} />
         ) : isStarting ? (
           <DashboardTransition />
+        ) : isDataLoading ? (
+          <div className="h-full flex items-center justify-center bg-gray-50">
+            <p className="text-sm font-medium text-gray-500">Loading your data...</p>
+          </div>
         ) : (
           <>
             <div className="flex-1 overflow-y-auto scrollbar-hide bg-gray-50 relative">
@@ -162,6 +334,7 @@ export default function App() {
           </>
         )}
       </div>
+
     </div>
   );
 }

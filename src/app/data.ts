@@ -1,5 +1,3 @@
-import { LucideIcon, Leaf, Droplets, Trash2, ShoppingBag, MapPin, Award, Zap, Users } from 'lucide-react';
-
 export interface User {
   id: string;
   name: string;
@@ -15,9 +13,9 @@ export interface User {
 export interface Badge {
   id: string;
   name: string;
-  icon: string; // Emoji or icon name
+  icon: string;
   description: string;
-  unlockedAt?: Date;
+  unlockedAt?: string;
 }
 
 export interface Mission {
@@ -42,132 +40,173 @@ export interface FeedItem {
   likes: number;
 }
 
-export const CURRENT_USER: User = {
-  id: 'u1',
-  name: 'Miguel Santos',
-  avatar: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-  points: 1250,
-  level: 5,
-  streak: 12,
-  school: 'Rizal High School',
-  bio: 'Nature lover & Eco-warrior 🌱',
-  badges: [
-    { id: 'b1', name: 'Early Bird', icon: '🌅', description: 'Completed a mission before 8AM', unlockedAt: new Date() },
-    { id: 'b2', name: 'Recycler', icon: '♻️', description: 'Recycled 5kg of plastic', unlockedAt: new Date() },
-  ]
-};
+export interface Hotspot {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  type: string;
+  status: string;
+}
+
+export interface RewardItem {
+  id: string;
+  name: string;
+  cost: number;
+  image: string;
+  category: string;
+  description: string;
+}
+
+export interface AppData {
+  user: User;
+  missions: Mission[];
+  feed: FeedItem[];
+  leaderboard: User[];
+  hotspots: Hotspot[];
+  rewards: RewardItem[];
+  dailyBonusClaimedAt?: string;
+}
 
 export const MISSIONS: Mission[] = [
   {
-    id: 'm1',
+    id: 'plastic-bottles',
     title: 'Plastic Bottle Segregation',
     description: 'Collect and segregate 5 plastic bottles for recycling.',
-    points: 50,
+    points: 60,
     category: 'waste',
     completed: false,
-    image: 'https://images.unsplash.com/photo-1653406384710-08688ec6b979?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbGFzdGljJTIwcmVjeWNsaW5nJTIwYmlufGVufDF8fHx8MTc3MTIyMDk5N3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+    image: 'https://images.unsplash.com/photo-1653406384710-08688ec6b979?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
-    id: 'm2',
-    title: 'Plant a Seedling',
-    description: 'Plant a tree or a small plant in your garden or community.',
-    points: 100,
+    id: 'lights-off',
+    title: 'Lights Off Hour',
+    description: 'Turn off non-essential lights and unplug unused chargers for 1 hour.',
+    points: 80,
+    category: 'energy',
+    completed: false,
+    image: 'https://images.unsplash.com/photo-1517991104123-1d56a6e81ed9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+  },
+  {
+    id: 'reusable-cup',
+    title: 'Bring a Reusable Cup',
+    description: 'Use your own reusable cup for any drink order today.',
+    points: 70,
+    category: 'waste',
+    completed: false,
+    image: 'https://images.unsplash.com/photo-1459755486867-b55449bb39ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+  },
+  {
+    id: 'compost-waste',
+    title: 'Compost Kitchen Waste',
+    description: 'Separate biodegradable waste and set up a simple compost bin.',
+    points: 120,
     category: 'nature',
     completed: false,
-    image: 'https://images.unsplash.com/photo-1721457616561-701d25702874?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmaWxpcGlubyUyMHN0dWRlbnRzJTIwcGxhbnRpbmclMjB0cmVlc3xlbnwxfHx8fDE3NzEyMjA5OTd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+    image: 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
-    id: 'm3',
-    title: 'Use a Reusable Bag',
-    description: 'Avoid single-use plastic bags when shopping today.',
-    points: 30,
-    category: 'waste',
-    completed: true,
-    image: 'https://images.unsplash.com/photo-1607011753273-5a3cc90fca78?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlY28lMjBmcmllbmRseSUyMHJldXNhYmxlJTIwYmFnfGVufDF8fHx8MTc3MTIyMDk5N3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-  },
-  {
-    id: 'm4',
-    title: 'Coastal Cleanup',
-    description: 'Join a local beach or river cleanup drive.',
-    points: 200,
+    id: 'public-transit',
+    title: 'Take Public Transit',
+    description: 'Choose public transport, walking, or biking for your main trip today.',
+    points: 140,
     category: 'community',
     completed: false,
-    image: 'https://images.unsplash.com/photo-1559551410-1457ef2a5c54?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjbGVhbiUyMGJlYWNoJTIwcGhpbGlwcGluZXN8ZW58MXx8fHwxNzcxMjIwOTk3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-  }
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+  },
+  {
+    id: 'water-save',
+    title: 'Save 10 Liters of Water',
+    description: 'Reduce water use by shortening showers or reusing rinse water.',
+    points: 90,
+    category: 'water',
+    completed: false,
+    image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+  },
 ];
 
-export const LEADERBOARD: User[] = [
-  { ...CURRENT_USER, id: 'u1', points: 1250, streak: 12 },
-  {
-    id: 'u2',
-    name: 'Sofia Reyes',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop&q=60',
-    points: 1420,
-    level: 6,
-    streak: 15,
-    badges: [],
-    school: 'Ateneo de Manila'
-  },
-  {
-    id: 'u3',
-    name: 'Juan Dela Cruz',
-    avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&auto=format&fit=crop&q=60',
-    points: 1100,
-    level: 4,
-    streak: 5,
-    badges: [],
-    school: 'UP Diliman'
-  },
-  {
-    id: 'u4',
-    name: 'Maria Clara',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format&fit=crop&q=60',
-    points: 980,
-    level: 4,
-    streak: 8,
-    badges: [],
-    school: 'UST'
-  },
-  {
-    id: 'u5',
-    name: 'Pedro Penduko',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=60',
-    points: 850,
-    level: 3,
-    streak: 2,
-    badges: [],
-    school: 'DLSU'
-  }
-];
+export const FRESH_USER: User = {
+  id: 'drei',
+  name: 'Drei',
+  avatar: 'https://api.dicebear.com/9.x/initials/svg?seed=Drei',
+  points: 0,
+  streak: 0,
+  level: 1,
+  badges: [],
+  school: '',
+  bio: '',
+};
 
-export const FEED_ITEMS: FeedItem[] = [
-  {
-    id: 'f1',
-    userId: 'u2',
-    userName: 'Sofia Reyes',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop&q=60',
-    action: 'planted a tree',
-    timestamp: '2h ago',
-    image: 'https://images.unsplash.com/photo-1763856957026-a74ab4f05891?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbGFudGluZyUyMHRyZWUlMjBzZWVkbGluZyUyMHNwcm91dCUyMGhhbmRzJTIwc29pbHxlbnwxfHx8fDE3NzEyMjIyMjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-    location: 'La Mesa Ecopark',
-    likes: 24
-  },
-  {
-    id: 'f2',
-    userId: 'u3',
-    userName: 'Juan Dela Cruz',
-    userAvatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&auto=format&fit=crop&q=60',
-    action: 'cleaned up the beach',
-    timestamp: '5h ago',
-    image: 'https://images.unsplash.com/photo-1758599669016-acedd3942ca2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWFjaCUyMGNsZWFudXAlMjB2b2x1bnRlZXIlMjBjb2xsZWN0aW5nJTIwcGxhc3RpYyUyMHdhc3RlfGVufDF8fHx8MTc3MTIyMjIyMHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-    location: 'Manila Bay',
-    likes: 45
-  }
-];
+export const HERO_USER: User = {
+  id: 'drei',
+  name: 'Drei',
+  avatar: 'https://api.dicebear.com/9.x/initials/svg?seed=Drei',
+  points: 1240,
+  streak: 7,
+  level: 4,
+  badges: [],
+  school: '',
+  bio: '',
+};
 
-export const HOTSPOTS = [
-  { id: 1, name: "La Mesa Ecopark", lat: 14.711, lng: 121.076, type: "Park", status: "Open" },
-  { id: 2, name: "Masungi Georeserve", lat: 14.604, lng: 121.328, type: "Reserve", status: "Protected" },
-  { id: 3, name: "Las Piñas-Parañaque Wetland", lat: 14.496, lng: 120.983, type: "Wetland", status: "Cleanup Needed" },
-  { id: 4, name: "Arroceros Forest Park", lat: 14.594, lng: 120.982, type: "Forest", status: "Event Today" },
-];
+export const HERO_MISSIONS: Mission[] = MISSIONS.map((mission, i) => ({
+  ...mission,
+  completed: i < 5,
+}));
+
+export function createInitialAppData(): AppData {
+  return {
+    user: FRESH_USER,
+    missions: MISSIONS,
+    feed: [],
+    leaderboard: [FRESH_USER],
+    hotspots: [
+      { id: 1, name: 'La Mesa Ecopark', lat: 14.711, lng: 121.076, type: 'Park', status: 'Open' },
+      { id: 2, name: 'Masungi Georeserve', lat: 14.604, lng: 121.328, type: 'Reserve', status: 'Protected' },
+      { id: 3, name: 'Las Piñas-Parañaque Wetland', lat: 14.496, lng: 120.983, type: 'Wetland', status: 'Cleanup Needed' },
+      { id: 4, name: 'Arroceros Forest Park', lat: 14.594, lng: 120.982, type: 'Forest', status: 'Event Today' },
+    ],
+    rewards: [
+      {
+        id: 'r1',
+        name: 'Bamboo Utensil Set',
+        cost: 500,
+        category: 'Eco Gear',
+        description: 'Reusable spoon, fork, and knife made from sustainable bamboo.',
+        image: 'https://images.unsplash.com/photo-1584346133934-a3afd2a33c4c?w=400&auto=format&fit=crop&q=60',
+      },
+      {
+        id: 'r2',
+        name: 'Metal Straw Kit',
+        cost: 300,
+        category: 'Eco Gear',
+        description: 'Stainless steel straw with cleaner and pouch.',
+        image: 'https://images.unsplash.com/photo-1572559092429-c70e3a6a978d?w=400&auto=format&fit=crop&q=60',
+      },
+      {
+        id: 'r3',
+        name: 'P100 GCash Load',
+        cost: 1000,
+        category: 'Voucher',
+        description: 'Electronic load for any network.',
+        image: 'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=400&auto=format&fit=crop&q=60',
+      },
+      {
+        id: 'r4',
+        name: 'Cinema Ticket',
+        cost: 1500,
+        category: 'Entertainment',
+        description: 'One movie pass at participating SM Cinemas.',
+        image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&auto=format&fit=crop&q=60',
+      },
+      {
+        id: 'r5',
+        name: 'Organic Soap Bar',
+        cost: 400,
+        category: 'Lifestyle',
+        description: 'Handmade organic soap with natural ingredients.',
+        image: 'https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=400&auto=format&fit=crop&q=60',
+      },
+    ],
+  };
+}

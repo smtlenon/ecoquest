@@ -1,70 +1,21 @@
 import React from 'react';
-import { User } from '../data';
+import { RewardItem, User } from '../data';
 import { Gift, ShoppingBag, Ticket, Leaf, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 
 interface RewardsProps {
   user: User;
-  onRedeem: (cost: number, itemName: string) => void;
+  rewards: RewardItem[];
+  canClaimDailyReward: boolean;
+  onClaimDailyReward: () => void;
+  onRedeem: (item: RewardItem) => void;
 }
 
-interface RewardItem {
-  id: string;
-  name: string;
-  cost: number;
-  image: string;
-  category: string;
-  description: string;
-}
-
-const REWARDS: RewardItem[] = [
-  {
-    id: 'r1',
-    name: 'Bamboo Utensil Set',
-    cost: 500,
-    category: 'Eco Gear',
-    description: 'Reusable spoon, fork, and knife made from sustainable bamboo.',
-    image: 'https://images.unsplash.com/photo-1584346133934-a3afd2a33c4c?w=400&auto=format&fit=crop&q=60'
-  },
-  {
-    id: 'r2',
-    name: 'Metal Straw Kit',
-    cost: 300,
-    category: 'Eco Gear',
-    description: 'Stainless steel straw with cleaner and pouch.',
-    image: 'https://images.unsplash.com/photo-1572559092429-c70e3a6a978d?w=400&auto=format&fit=crop&q=60'
-  },
-  {
-    id: 'r3',
-    name: '₱100 GCash Load',
-    cost: 1000,
-    category: 'Voucher',
-    description: 'Electronic load for any network.',
-    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=400&auto=format&fit=crop&q=60'
-  },
-  {
-    id: 'r4',
-    name: 'Cinema Ticket',
-    cost: 1500,
-    category: 'Entertainment',
-    description: 'One movie pass at participating SM Cinemas.',
-    image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&auto=format&fit=crop&q=60'
-  },
-  {
-    id: 'r5',
-    name: 'Organic Soap Bar',
-    cost: 400,
-    category: 'Lifestyle',
-    description: 'Handmade organic soap with natural ingredients.',
-    image: 'https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=400&auto=format&fit=crop&q=60'
-  }
-];
-
-export function Rewards({ user, onRedeem }: RewardsProps) {
+export function Rewards({ user, rewards, canClaimDailyReward, onClaimDailyReward, onRedeem }: RewardsProps) {
   const handleRedeem = (item: RewardItem) => {
     if (user.points >= item.cost) {
-      onRedeem(item.cost, item.name);
+      onRedeem(item);
     } else {
       toast.error(`You need ${item.cost - user.points} more points to redeem this!`);
     }
@@ -97,7 +48,13 @@ export function Rewards({ user, onRedeem }: RewardsProps) {
                 <p className="text-xs text-emerald-100">Claim your +10 login bonus</p>
               </div>
             </div>
-            <button className="bg-white text-emerald-600 text-xs font-bold px-3 py-1.5 rounded-lg">Claim</button>
+            <button
+              onClick={onClaimDailyReward}
+              className="bg-white text-emerald-600 text-xs font-bold px-3 py-1.5 rounded-lg disabled:bg-gray-200 disabled:text-gray-500"
+              disabled={!canClaimDailyReward}
+            >
+              {canClaimDailyReward ? 'Claim' : 'Claimed'}
+            </button>
           </div>
         </div>
       </div>
@@ -110,7 +67,7 @@ export function Rewards({ user, onRedeem }: RewardsProps) {
         </h2>
         
         <div className="grid grid-cols-1 gap-4">
-          {REWARDS.map((item) => (
+          {rewards.map((item) => (
             <motion.div 
               key={item.id}
               initial={{ opacity: 0, y: 10 }}

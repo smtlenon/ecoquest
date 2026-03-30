@@ -1,8 +1,12 @@
 import React from 'react';
-import { HOTSPOTS } from '../data';
+import { Hotspot } from '../data';
 import { MapPin, Navigation } from 'lucide-react';
 
-export function MapView() {
+interface MapViewProps {
+  hotspots: Hotspot[];
+}
+
+export function MapView({ hotspots }: MapViewProps) {
   return (
     <div className="flex flex-col h-full bg-gray-50 pb-6">
       <div className="px-6 pt-12 pb-4 bg-white shadow-sm z-10">
@@ -27,7 +31,7 @@ export function MapView() {
         </div>
 
         {/* Hotspots */}
-        {HOTSPOTS.map((spot, i) => (
+        {hotspots.map((spot, i) => (
           <div 
             key={spot.id}
             className="absolute transform -translate-x-1/2 -translate-y-1/2"

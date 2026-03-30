@@ -1,9 +1,22 @@
 import React from 'react';
-import { LEADERBOARD } from '../data';
+import { User } from '../data';
 import { Trophy, Medal } from 'lucide-react';
 
-export function Leaderboard() {
-  const sortedUsers = [...LEADERBOARD].sort((a, b) => b.points - a.points);
+interface LeaderboardProps {
+  users: User[];
+}
+
+export function Leaderboard({ users }: LeaderboardProps) {
+  const sortedUsers = [...users].sort((a, b) => b.points - a.points);
+
+  if (sortedUsers.length < 3) {
+    return (
+      <div className="flex flex-col h-full bg-gray-50 pb-6 items-center justify-center px-6 text-center">
+        <h1 className="text-2xl font-bold text-gray-900">Eco Champions</h1>
+        <p className="text-gray-500 mt-2">Leaderboard data is still loading. Keep completing missions.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-gray-50 pb-6">

@@ -1,13 +1,16 @@
 import React from 'react';
-import { User, CURRENT_USER } from '../data';
+import { User } from '../data';
 import { Settings, Share2, Award, Zap, Calendar } from 'lucide-react';
+import { FilmingControls } from './FilmingControls';
 
 interface ProfileProps {
+  user: User;
   onNavigate?: (tab: string) => void;
+  onFreshStart: () => void;
+  onHeroState: () => void;
 }
 
-export function Profile({ onNavigate }: ProfileProps) {
-  const user = CURRENT_USER;
+export function Profile({ user, onNavigate, onFreshStart, onHeroState }: ProfileProps) {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 pb-6">
@@ -134,6 +137,8 @@ export function Profile({ onNavigate }: ProfileProps) {
            </div>
         </div>
       </div>
+
+      <FilmingControls onFreshStart={onFreshStart} onHeroState={onHeroState} />
     </div>
   );
 }

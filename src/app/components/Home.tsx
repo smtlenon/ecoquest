@@ -77,13 +77,19 @@ export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
           <button className="text-emerald-600 text-sm font-semibold">View All</button>
         </div>
         <div className="grid gap-4">
-          {missions.map((mission) => (
-            <MissionCard 
-              key={mission.id} 
-              mission={mission} 
-              onSelect={onMissionSelect} 
-            />
-          ))}
+          {missions.length === 0 ? (
+            <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-5 text-sm text-gray-500">
+              No missions yet. Add missions from your connected data source.
+            </div>
+          ) : (
+            missions.map((mission) => (
+              <MissionCard
+                key={mission.id}
+                mission={mission}
+                onSelect={onMissionSelect}
+              />
+            ))
+          )}
         </div>
       </div>
 
@@ -91,35 +97,41 @@ export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
       <div className="px-6">
         <h2 className="text-lg font-bold text-gray-800 mb-4">Community Activity</h2>
         <div className="flex flex-col gap-4">
-          {feed.map((item) => (
-            <div key={item.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-3">
-              <img 
-                src={item.userAvatar} 
-                alt={item.userName} 
-                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-800">
-                  <span className="font-bold">{item.userName}</span> {item.action}
-                </p>
-                {item.location && (
-                  <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-                    <MapPin className="w-3 h-3" />
-                    {item.location}
-                    <span className="mx-1">•</span>
-                    {item.timestamp}
-                  </div>
+          {feed.length === 0 ? (
+            <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-5 text-sm text-gray-500">
+              No community activity yet.
+            </div>
+          ) : (
+            feed.map((item) => (
+              <div key={item.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-3">
+                <img
+                  src={item.userAvatar}
+                  alt={item.userName}
+                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-800">
+                    <span className="font-bold">{item.userName}</span> {item.action}
+                  </p>
+                  {item.location && (
+                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                      <MapPin className="w-3 h-3" />
+                      {item.location}
+                      <span className="mx-1">•</span>
+                      {item.timestamp}
+                    </div>
+                  )}
+                </div>
+                {item.image && (
+                  <ImageWithFallback
+                    src={item.image}
+                    alt="Proof"
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
                 )}
               </div>
-              {item.image && (
-                 <ImageWithFallback 
-                   src={item.image} 
-                   alt="Proof"
-                   className="w-16 h-16 rounded-lg object-cover" 
-                 />
-              )}
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
