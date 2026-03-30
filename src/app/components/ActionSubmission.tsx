@@ -41,7 +41,8 @@ export function ActionSubmission({ mission, isOpen, onClose, onComplete }: Actio
     <Drawer.Root open={isOpen} onOpenChange={(open) => !open && reset()}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-        <Drawer.Content className="bg-white flex flex-col rounded-t-[10px] h-[90vh] mt-24 fixed bottom-0 left-0 right-0 z-50 outline-none">
+        {/* iOS WebKit fix */}
+        <Drawer.Content className="bg-white flex flex-col rounded-t-[10px] ios-drawer-content mt-24 fixed bottom-0 left-0 right-0 z-50 outline-none">
           <div className="sr-only">
             <Drawer.Title>Mission Submission</Drawer.Title>
             <Drawer.Description>Submit your proof of action for this mission</Drawer.Description>

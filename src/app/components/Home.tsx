@@ -2,7 +2,7 @@ import React from 'react';
 import { User, Mission, FeedItem } from '../data';
 import { MissionCard } from './MissionCard';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Bell, Flame, MapPin, Search } from 'lucide-react';
+import { Bell, Flame, MapPin } from 'lucide-react';
 
 interface HomeProps {
   user: User;
@@ -30,7 +30,7 @@ export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
             </div>
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-medium">Magandang araw,</p>
+            <p className="text-xs text-gray-500 font-medium">Good to see you,</p>
             <h1 className="text-lg font-bold text-gray-900">{user.name.split(' ')[0]}!</h1>
           </div>
         </div>
@@ -57,7 +57,7 @@ export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
                 <h2 className="text-3xl font-bold">{user.points.toLocaleString()}</h2>
               </div>
               <div className="text-right">
-                <p className="text-emerald-100 text-xs font-medium">{1000 - (user.points % 1000)} pts to Level {user.level + 1}</p>
+                <p className="text-emerald-100 text-xs font-medium">{1000 - (user.points % 1000)} points to Level {user.level + 1}</p>
               </div>
             </div>
             <div className="h-2 bg-black/20 rounded-full overflow-hidden">
@@ -73,7 +73,7 @@ export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
       {/* Daily Missions */}
       <div className="px-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold text-gray-800">Daily Missions</h2>
+          <h2 className="text-lg font-bold text-gray-800">Today&apos;s Missions</h2>
           <button className="text-emerald-600 text-sm font-semibold">View All</button>
         </div>
         <div className="grid gap-4">
