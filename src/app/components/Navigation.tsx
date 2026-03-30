@@ -15,7 +15,7 @@ export function Navigation({ currentTab, onTabChange }: NavigationProps) {
   ];
 
   return (
-    <div className="bg-white border-t border-gray-200 px-4 py-3 pb-6 flex justify-center gap-8 items-center z-40 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] shrink-0 w-full">
+    <div className="bg-white border-t border-gray-200 px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] flex justify-center gap-8 items-center z-40 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] shrink-0 w-full">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = currentTab === tab.id;

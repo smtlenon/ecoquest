@@ -610,7 +610,7 @@ export default function App() {
                 'overflow-hidden transition-[max-height,opacity,transform,clip-path] duration-300 ease-out',
                 isNavHidden
                   ? 'max-h-0 opacity-0 translate-y-4 pointer-events-none [clip-path:inset(0_0_100%_0)]'
-                  : 'max-h-28 opacity-100 translate-y-0 pointer-events-auto [clip-path:inset(0_0_0%_0)]'
+                  : 'max-h-[calc(7rem+env(safe-area-inset-bottom))] opacity-100 translate-y-0 pointer-events-auto [clip-path:inset(0_0_0%_0)]'
               )}
             >
               <Navigation currentTab={currentTab} onTabChange={setCurrentTab} />
