@@ -3,6 +3,7 @@ import { CheckCircle2, Circle } from 'lucide-react';
 import { Mission } from '../data';
 import { clsx } from 'clsx';
 import { motion } from 'motion/react';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface MissionCardProps {
   mission: Mission;
@@ -30,7 +31,7 @@ export function MissionCard({ mission, onSelect }: MissionCardProps) {
       )}
     >
       <div className="h-32 w-full relative">
-        <img 
+        <ImageWithFallback
           src={mission.image} 
           alt={mission.title}
           className="w-full h-full object-cover"

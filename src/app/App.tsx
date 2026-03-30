@@ -462,6 +462,26 @@ export default function App() {
     });
   };
 
+  const handleSetProfileName = (name: string) => {
+    const nextName = name.trim();
+    if (!nextName) return;
+
+    setAppData((prev: AppData | null) => {
+      if (!prev) return prev;
+
+      const updatedUser = {
+        ...prev.user,
+        name: nextName,
+      };
+
+      return {
+        ...prev,
+        user: updatedUser,
+        leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
+      };
+    });
+  };
+
   const handleResetMissions = () => {
     setAppData((prev: AppData | null) => {
       if (!prev) return prev;
@@ -542,6 +562,7 @@ export default function App() {
         onAdjustPoints={handleAdjustPoints}
         onSetPoints={handleSetPoints}
         onSetStreak={handleSetStreak}
+        onSetProfileName={handleSetProfileName}
         onResetMissions={handleResetMissions}
         onResetRedeemedRewards={handleResetRedeemedRewards}
         onShowEndCard={handleShowEndCard}
@@ -606,7 +627,7 @@ export default function App() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.45, ease: 'easeOut' }}
-                  className="h-full"
+                  className="min-h-full"
                 >
                   {renderCurrentTab()}
                 </motion.div>

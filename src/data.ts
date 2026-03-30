@@ -114,7 +114,7 @@ export const MISSIONS: Mission[] = [
     description: "Make sure all faucets are fully closed - no drips. Submit a photo of your dry sink.",
     points: 70,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1521207418485-99c705420785?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=imani-vDQ-e3RtaoE-unsplash.jpg&w=1080',
+    image: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     id: 'mission-4',

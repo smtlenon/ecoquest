@@ -11,6 +11,7 @@ interface ProfileProps {
   onAdjustPoints: (delta: number) => void;
   onSetPoints: (points: number) => void;
   onSetStreak: (streak: number) => void;
+  onSetProfileName: (name: string) => void;
   onResetMissions: () => void;
   onResetRedeemedRewards: () => void;
   onShowEndCard: () => void;
@@ -24,11 +25,13 @@ export function Profile({
   onAdjustPoints,
   onSetPoints,
   onSetStreak,
+  onSetProfileName,
   onResetMissions,
   onResetRedeemedRewards,
   onShowEndCard,
 }: ProfileProps) {
   const [cheatInput, setCheatInput] = useState<string>('');
+  const [setNameInput, setSetNameInput] = useState<string>('');
   const [setPointsInput, setSetPointsInput] = useState<string>('');
   const [setStreakInput, setSetStreakInput] = useState<string>('');
   const [devMessage, setDevMessage] = useState<string | null>(null);
@@ -39,12 +42,12 @@ export function Profile({
   };
 
   const handleCheatApply = () => {
-    const delta = parseInt(cheatInput, 10);
-    if (isNaN(delta)) return;
+    const nextPoints = parseInt(cheatInput, 10);
+    if (isNaN(nextPoints)) return;
 
-    onAdjustPoints(delta);
+    onSetPoints(nextPoints);
     setCheatInput('');
-    showDevMessage('✓ Points updated');
+    showDevMessage('✓ Points set');
   };
 
   const handleSetPoints = () => {
@@ -65,6 +68,15 @@ export function Profile({
     showDevMessage('✓ Streak set');
   };
 
+  const handleSetProfileName = () => {
+    const nextName = setNameInput.trim();
+    if (!nextName) return;
+
+    onSetProfileName(nextName);
+    setSetNameInput('');
+    showDevMessage('✓ Profile name updated');
+  };
+
   const handleResetMissions = () => {
     onResetMissions();
     showDevMessage('✓ Missions reset');
@@ -81,7 +93,7 @@ export function Profile({
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 pb-6">
+    <div className="flex min-h-full flex-col bg-gray-50 pb-32">
       {/* Cover & Profile Header */}
       <div className="bg-white pb-6 rounded-b-3xl shadow-sm">
         <div className="h-32 bg-emerald-100 relative">
@@ -210,71 +222,99 @@ export function Profile({
 
       <div className="px-6 mt-8 pt-4 border-t border-dashed border-[#5A6A62]/30">
         <p className="text-xs font-mono text-[#5A6A62]/50 mb-2">Dev Tools</p>
-        <p className="text-xs text-[#5A6A62] mb-1">Adjust Points</p>
-        <div className="flex gap-2 items-center">
-          <input
-            type="number"
-            value={cheatInput}
-            onChange={(event) => setCheatInput(event.target.value)}
-            className="rounded-lg border border-[#5A6A62]/30 px-3 py-2 text-sm text-[#1E2A24] bg-[#F5FBF4] w-full"
-            placeholder="500"
-          />
-          <button
-            type="button"
-            onClick={handleCheatApply}
-            className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium"
-          >
-            Apply
-          </button>
+
+        <div className="space-y-2.5">
+          <div className="rounded-lg border border-[#5A6A62]/20 bg-[#F5FBF4]/70 p-2.5">
+            <p className="text-xs text-[#5A6A62] mb-1">Set Points</p>
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                value={cheatInput}
+                onChange={(event) => setCheatInput(event.target.value)}
+                className="rounded-lg border border-[#5A6A62]/30 px-3 py-2 text-sm text-[#1E2A24] bg-[#F5FBF4] w-full"
+                placeholder="500"
+              />
+              <button
+                type="button"
+                onClick={handleCheatApply}
+                className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium min-w-[84px]"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-[#5A6A62]/20 bg-[#F5FBF4]/70 p-2.5">
+            <p className="text-xs text-[#5A6A62] mb-1">Set Profile Name</p>
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={setNameInput}
+                onChange={(event) => setSetNameInput(event.target.value)}
+                className="rounded-lg border border-[#5A6A62]/30 px-3 py-2 text-sm text-[#1E2A24] bg-[#F5FBF4] w-full"
+                placeholder={user.name}
+              />
+              <button
+                type="button"
+                onClick={handleSetProfileName}
+                className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium min-w-[84px]"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-[#5A6A62]/20 bg-[#F5FBF4]/70 p-2.5">
+            <p className="text-xs text-[#5A6A62] mb-1">Set Streak</p>
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                value={setStreakInput}
+                onChange={(event) => setSetStreakInput(event.target.value)}
+                className="rounded-lg border border-[#5A6A62]/30 px-3 py-2 text-sm text-[#1E2A24] bg-[#F5FBF4] w-full"
+                placeholder="7"
+              />
+              <button
+                type="button"
+                onClick={handleSetStreak}
+                className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium min-w-[84px]"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2.5">
+            <button
+              type="button"
+              onClick={handleResetMissions}
+              className="w-full rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium text-left"
+            >
+              Reset Missions
+            </button>
+
+            <button
+              type="button"
+              onClick={handleResetRedeemedRewards}
+              className="w-full rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium text-left"
+            >
+              Reset Redeemed Rewards
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShowEndCard}
+              className="w-full rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium text-left"
+            >
+              Show Final End Card
+            </button>
+          </div>
         </div>
-
-        <p className="text-xs text-[#5A6A62] mb-1 mt-3">Set Streak (Exact)</p>
-        <div className="flex gap-2 items-center">
-          <input
-            type="number"
-            value={setStreakInput}
-            onChange={(event) => setSetStreakInput(event.target.value)}
-            className="rounded-lg border border-[#5A6A62]/30 px-3 py-2 text-sm text-[#1E2A24] bg-[#F5FBF4] w-full"
-            placeholder="7"
-          />
-          <button
-            type="button"
-            onClick={handleSetStreak}
-            className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium"
-          >
-            Apply
-          </button>
-        </div>
-
-        <p className="text-xs text-[#5A6A62] mb-1 mt-3">Reset Missions</p>
-        <button
-          type="button"
-          onClick={handleResetMissions}
-          className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium"
-        >
-          Mark All Uncompleted
-        </button>
-
-        <p className="text-xs text-[#5A6A62] mb-1 mt-3">Reset Redeemed Rewards</p>
-        <button
-          type="button"
-          onClick={handleResetRedeemedRewards}
-          className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium"
-        >
-          Clear Redeemed Rewards
-        </button>
-
-        <p className="text-xs text-[#5A6A62] mb-1 mt-3">Final End Card</p>
-        <button
-          type="button"
-          onClick={handleShowEndCard}
-          className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium"
-        >
-          Show End Card
-        </button>
 
         {devMessage ? <p className="text-xs text-[#1E9E63] mt-2 font-medium">{devMessage}</p> : null}
       </div>
+
+      <div className="h-14" aria-hidden="true" />
     </div>
   );
 }
