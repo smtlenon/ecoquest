@@ -13,6 +13,7 @@ interface ProfileProps {
   onSetStreak: (streak: number) => void;
   onResetMissions: () => void;
   onResetRedeemedRewards: () => void;
+  onShowEndCard: () => void;
 }
 
 export function Profile({
@@ -25,6 +26,7 @@ export function Profile({
   onSetStreak,
   onResetMissions,
   onResetRedeemedRewards,
+  onShowEndCard,
 }: ProfileProps) {
   const [cheatInput, setCheatInput] = useState<string>('');
   const [setPointsInput, setSetPointsInput] = useState<string>('');
@@ -71,6 +73,11 @@ export function Profile({
   const handleResetRedeemedRewards = () => {
     onResetRedeemedRewards();
     showDevMessage('✓ Redeemed rewards reset');
+  };
+
+  const handleShowEndCard = () => {
+    onShowEndCard();
+    showDevMessage('✓ End card shown');
   };
 
   return (
@@ -255,6 +262,15 @@ export function Profile({
           className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium"
         >
           Clear Redeemed Rewards
+        </button>
+
+        <p className="text-xs text-[#5A6A62] mb-1 mt-3">Final End Card</p>
+        <button
+          type="button"
+          onClick={handleShowEndCard}
+          className="rounded-lg bg-[#5A6A62] text-white text-sm px-4 py-2 font-medium"
+        >
+          Show End Card
         </button>
 
         {devMessage ? <p className="text-xs text-[#1E9E63] mt-2 font-medium">{devMessage}</p> : null}

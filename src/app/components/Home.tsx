@@ -9,9 +9,10 @@ interface HomeProps {
   missions: Mission[];
   feed: FeedItem[];
   onMissionSelect: (mission: Mission) => void;
+  onNavigateToRewards: () => void;
 }
 
-export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
+export function Home({ user, missions, feed, onMissionSelect, onNavigateToRewards }: HomeProps) {
   const progress = (user.points % 1000) / 1000 * 100; // Simplified level progress
   const orderedMissions = [...missions].sort((a, b) => Number(a.completed) - Number(b.completed));
 
@@ -49,7 +50,11 @@ export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
 
       {/* Progress Card */}
       <div className="px-6">
-        <div className="bg-emerald-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-200 relative overflow-hidden">
+        <button
+          type="button"
+          onClick={onNavigateToRewards}
+          className="w-full text-left bg-emerald-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-200 relative overflow-hidden active:scale-[0.99] transition-transform"
+        >
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl"></div>
           <div className="relative z-10">
             <div className="flex justify-between items-end mb-2">
@@ -68,7 +73,7 @@ export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
               ></div>
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Daily Missions */}

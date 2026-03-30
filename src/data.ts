@@ -96,7 +96,7 @@ export const MISSIONS: Mission[] = [
     description: "Turn off all electric fans in rooms you're not using. Submit a photo of the fan switched off.",
     points: 60,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1517991104123-1d56a6e81ed9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    image: 'https://images.unsplash.com/photo-1588001895517-cb4c7fe6b392?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=akshar-dave-Tk_Arhwj4Xk-unsplash.jpg&w=1080',
   },
   {
     id: 'mission-2',
@@ -114,7 +114,7 @@ export const MISSIONS: Mission[] = [
     description: "Make sure all faucets are fully closed - no drips. Submit a photo of your dry sink.",
     points: 70,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    image: 'https://images.unsplash.com/photo-1521207418485-99c705420785?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=imani-vDQ-e3RtaoE-unsplash.jpg&w=1080',
   },
   {
     id: 'mission-4',
@@ -123,7 +123,7 @@ export const MISSIONS: Mission[] = [
     description: 'Separate your trash into biodegradable and non-biodegradable. Submit a photo of your sorted bins.',
     points: 70,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1653406384710-08688ec6b979?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    image: 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=nareeta-martin-FoG7PKNYjpM-unsplash.jpg&w=1080',
   },
   {
     id: 'mission-5',
@@ -141,7 +141,7 @@ export const MISSIONS: Mission[] = [
     description: 'Make sure the refrigerator door is fully shut. Submit a photo of your closed fridge.',
     points: 80,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    image: 'https://images.unsplash.com/photo-1540542688561-a862088d5e0a?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=uve-sanchez-5LC2CsKBCF0-unsplash.jpg&w=1080',
   },
   {
     id: 'mission-7',
@@ -150,7 +150,7 @@ export const MISSIONS: Mission[] = [
     description: 'Clean up food mess from the dining table after eating. Submit a photo of your clean table.',
     points: 90,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1556911220-bda9f7f7597e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    image: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     id: 'mission-8',
@@ -159,7 +159,7 @@ export const MISSIONS: Mission[] = [
     description: "Don't leave dishes sitting in the sink. Wash them and submit a photo of your clean sink.",
     points: 100,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    image: 'https://images.pexels.com/photos/9462195/pexels-photo-9462195.jpeg?auto=compress&cs=tinysrgb&w=1080',
   },
   {
     id: 'mission-9',
@@ -177,7 +177,7 @@ export const MISSIONS: Mission[] = [
     description: 'Unplug chargers, appliances, or electronics not in use. Submit a photo of the unplugged outlets.',
     points: 120,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    image: 'https://images.pexels.com/photos/14071432/pexels-photo-14071432.jpeg?auto=compress&cs=tinysrgb&w=1080',
   },
 ];
 
