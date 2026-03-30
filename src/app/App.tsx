@@ -230,6 +230,9 @@ export default function App() {
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer || !hasStarted || isStarting || isDataLoading) return;
 
+    const SHOW_NAV_DELTA = -3;
+    const HIDE_NAV_DELTA = 10;
+
     lastScrollTopRef.current = Math.max(0, scrollContainer.scrollTop);
 
     const handleScroll = () => {
@@ -242,8 +245,10 @@ export default function App() {
 
         if (currentScrollTop <= 12) {
           setIsNavHidden(false);
-        } else if (Math.abs(delta) >= 10) {
-          setIsNavHidden(delta > 0);
+        } else if (delta <= SHOW_NAV_DELTA) {
+          setIsNavHidden(false);
+        } else if (delta >= HIDE_NAV_DELTA) {
+          setIsNavHidden(true);
         }
 
         lastScrollTopRef.current = currentScrollTop;
