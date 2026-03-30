@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Home } from './components/Home';
 import { MapView } from './components/MapView';
 import { Leaderboard } from './components/Leaderboard';
@@ -8,11 +8,14 @@ import { Rewards } from './components/Rewards';
 import { ActionSubmission } from './components/ActionSubmission';
 import { OpeningPage } from './components/OpeningPage';
 import { DashboardTransition } from './components/DashboardTransition';
-import { AppData, FRESH_USER, HERO_MISSIONS, HERO_USER, Mission, MISSIONS, RewardItem, User } from './data';
+import { AppData, ClaimedReward, FRESH_USER, HERO_MISSIONS, HERO_USER, Mission, MISSIONS, Reward, User } from '../data';
 import { loadAppData, saveAppData } from './services/appDataService';
 import { Toaster, toast } from 'sonner';
 import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
 import { AnimatePresence, motion } from 'motion/react';
+
+const CONFETTI_COLORS = ['#1E9E63', '#DDF5E7', '#FFE7B8', '#178A55', '#FFFFFF'];
 
 const upsertUserInLeaderboard = (leaderboard: User[], user: User): User[] => {
   const withoutCurrent = leaderboard.filter((entry) => entry.id !== user.id);
@@ -31,23 +34,53 @@ const getSavedUser = (): User => {
 const getSavedMissions = (): Mission[] => {
   try {
     const saved = localStorage.getItem('ecoquest-missions');
-    return saved ? (JSON.parse(saved) as Mission[]) : MISSIONS;
+    if (!saved) return MISSIONS;
+
+    const parsed = JSON.parse(saved) as Mission[];
+    const currentIds = new Set(MISSIONS.map((mission) => mission.id));
+    const isCompatible = parsed.length === MISSIONS.length && parsed.every((mission) => currentIds.has(mission.id));
+
+    if (!isCompatible) {
+      localStorage.setItem('ecoquest-missions', JSON.stringify(MISSIONS));
+      return MISSIONS;
+    }
+
+    return parsed;
   } catch {
     return MISSIONS;
   }
 };
 
-function useWindowSize() {
-  const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+const buildClaimInstructions = (reward: Reward): string => {
+  if (reward.category === 'food') {
+    return 'Show this code at the cashier before payment. One-time use only.';
+  }
 
-  useEffect(() => {
-    const handleResize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  if (reward.category === 'voucher') {
+    return 'Present this code at the customer service counter to redeem your voucher.';
+  }
 
-  return size;
-}
+  return 'Show this code to the EcoQuest booth or support team to claim your merch item.';
+};
+
+const buildClaimRecord = (reward: Reward): ClaimedReward => {
+  const now = new Date();
+  const expires = new Date(now);
+  expires.setDate(expires.getDate() + 30);
+
+  return {
+    id: `claim-${now.getTime()}`,
+    rewardId: reward.id,
+    title: reward.title,
+    partner: reward.partner,
+    pointsSpent: reward.points,
+    code: `EQ-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+    redeemedAt: now.toISOString(),
+    expiresAt: expires.toISOString(),
+    status: 'unclaimed',
+    instructions: buildClaimInstructions(reward),
+  };
+};
 
 export default function App() {
   const [hasOnboarded, setHasOnboarded] = useState(() => {
@@ -61,8 +94,18 @@ export default function App() {
   const [appData, setAppData] = useState<AppData | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showMissionConfetti, setShowMissionConfetti] = useState(false);
+  const [missionConfettiRecycle, setMissionConfettiRecycle] = useState(false);
+  const missionConfettiTimersRef = useRef<number[]>([]);
 
-  const { width, height } = useWindowSize();
+  const { width: windowWidth = 0, height: windowHeight = 0 } = useWindowSize();
+
+  useEffect(() => {
+    return () => {
+      missionConfettiTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+      missionConfettiTimersRef.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -78,6 +121,7 @@ export default function App() {
             user,
             missions,
             leaderboard: upsertUserInLeaderboard(loaded.leaderboard, user),
+            claimedRewards: loaded.claimedRewards ?? [],
           });
         }
       })
@@ -140,10 +184,10 @@ export default function App() {
   };
 
   const handleMissionComplete = (mission: Mission) => {
-    setAppData((prev) => {
+    setAppData((prev: AppData | null) => {
       if (!prev) return prev;
 
-      const targetMission = prev.missions.find((item) => item.id === mission.id);
+      const targetMission = prev.missions.find((item: Mission) => item.id === mission.id);
       if (!targetMission || targetMission.completed) {
         return prev;
       }
@@ -157,70 +201,54 @@ export default function App() {
       return {
         ...prev,
         user: updatedUser,
-        missions: prev.missions.map((item) =>
+        missions: prev.missions.map((item: Mission) =>
           item.id === targetMission.id ? { ...item, completed: true } : item
         ),
         leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
       };
     });
 
-    setShowConfetti(true);
-    window.setTimeout(() => setShowConfetti(false), 4500);
+    missionConfettiTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+    missionConfettiTimersRef.current = [];
+
+    setShowMissionConfetti(true);
+    setMissionConfettiRecycle(true);
+
+    const stopEmissionTimer = window.setTimeout(() => {
+      setMissionConfettiRecycle(false);
+    }, 3000);
+
+    const hideCanvasTimer = window.setTimeout(() => {
+      setShowMissionConfetti(false);
+    }, 9000);
+
+    missionConfettiTimersRef.current.push(stopEmissionTimer, hideCanvasTimer);
   };
 
-  const handleRedeem = (item: RewardItem) => {
-    setAppData((prev) => {
-      if (!prev || prev.user.points < item.cost) return prev;
+  const handleRedeem = (reward: Reward): ClaimedReward | null => {
+    const claim = buildClaimRecord(reward);
+
+    setAppData((prev: AppData | null) => {
+      if (!prev || prev.user.points < reward.points) return prev;
 
       const updatedUser = {
         ...prev.user,
-        points: prev.user.points - item.cost,
+        points: prev.user.points - reward.points,
       };
 
       return {
         ...prev,
         user: updatedUser,
         leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
+        claimedRewards: [claim, ...(prev.claimedRewards ?? [])],
       };
     });
 
-    toast.success(`Redeemed: ${item.name}`);
+    toast.success(`Redeemed: ${reward.title}`);
     setShowConfetti(true);
     window.setTimeout(() => setShowConfetti(false), 3500);
-  };
 
-  const canClaimDailyReward = (() => {
-    if (!appData?.dailyBonusClaimedAt) return true;
-
-    const claimed = new Date(appData.dailyBonusClaimedAt).toDateString();
-    const today = new Date().toDateString();
-    return claimed !== today;
-  })();
-
-  const handleClaimDailyReward = () => {
-    if (!appData) return;
-    if (!canClaimDailyReward) {
-      toast.info('Daily reward already claimed. Come back tomorrow.');
-      return;
-    }
-
-    setAppData((prev) => {
-      if (!prev) return prev;
-
-      const updatedUser = {
-        ...prev.user,
-        points: prev.user.points + 10,
-      };
-
-      return {
-        ...prev,
-        user: updatedUser,
-        dailyBonusClaimedAt: new Date().toISOString(),
-        leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
-      };
-    });
-
-    toast.success('Daily reward claimed: +10 points');
+    return claim;
   };
 
   const handleStart = () => {
@@ -246,6 +274,80 @@ export default function App() {
     window.location.reload();
   };
 
+  const handleAdjustPoints = (delta: number) => {
+    setAppData((prev: AppData | null) => {
+      if (!prev) return prev;
+
+      const updatedUser = {
+        ...prev.user,
+        points: Math.max(0, prev.user.points + delta),
+      };
+
+      return {
+        ...prev,
+        user: updatedUser,
+        leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
+      };
+    });
+  };
+
+  const handleSetPoints = (points: number) => {
+    setAppData((prev: AppData | null) => {
+      if (!prev) return prev;
+
+      const updatedUser = {
+        ...prev.user,
+        points: Math.max(0, points),
+      };
+
+      return {
+        ...prev,
+        user: updatedUser,
+        leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
+      };
+    });
+  };
+
+  const handleSetStreak = (streak: number) => {
+    setAppData((prev: AppData | null) => {
+      if (!prev) return prev;
+
+      const updatedUser = {
+        ...prev.user,
+        streak: Math.max(0, streak),
+      };
+
+      return {
+        ...prev,
+        user: updatedUser,
+        leaderboard: upsertUserInLeaderboard(prev.leaderboard, updatedUser),
+      };
+    });
+  };
+
+  const handleResetMissions = () => {
+    setAppData((prev: AppData | null) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        missions: prev.missions.map((mission: Mission) => ({ ...mission, completed: false })),
+      };
+    });
+  };
+
+  const handleResetRedeemedRewards = () => {
+    setAppData((prev: AppData | null) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        rewards: prev.rewards.map((reward: Reward) => ({ ...reward, redeemed: false })),
+        claimedRewards: [],
+      };
+    });
+  };
+
   const renderCurrentTab = () => {
     if (!appData) return null;
 
@@ -265,9 +367,7 @@ export default function App() {
       return (
         <Rewards
           user={appData.user}
-          rewards={appData.rewards}
-          canClaimDailyReward={canClaimDailyReward}
-          onClaimDailyReward={handleClaimDailyReward}
+          claimedRewards={appData.claimedRewards ?? []}
           onRedeem={handleRedeem}
         />
       );
@@ -279,6 +379,11 @@ export default function App() {
         onNavigate={setCurrentTab}
         onFreshStart={handleFreshStart}
         onHeroState={handleHeroState}
+        onAdjustPoints={handleAdjustPoints}
+        onSetPoints={handleSetPoints}
+        onSetStreak={handleSetStreak}
+        onResetMissions={handleResetMissions}
+        onResetRedeemedRewards={handleResetRedeemedRewards}
       />
     );
   };
@@ -289,12 +394,39 @@ export default function App() {
 
       {showConfetti && (
         <Confetti
-          width={width}
-          height={height}
+          width={windowWidth}
+          height={windowHeight}
           numberOfPieces={180}
           recycle={false}
           style={{ position: 'fixed', zIndex: 100 }}
         />
+      )}
+
+      {showMissionConfetti && (
+        <>
+          <Confetti
+            width={windowWidth}
+            height={windowHeight}
+            recycle={missionConfettiRecycle}
+            numberOfPieces={480}
+            gravity={0.17}
+            wind={0.01}
+            colors={CONFETTI_COLORS}
+            confettiSource={{ x: windowWidth * 0.15, y: 0, w: windowWidth * 0.7, h: 16 }}
+            style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999 }}
+          />
+          <Confetti
+            width={windowWidth}
+            height={windowHeight}
+            recycle={missionConfettiRecycle}
+            numberOfPieces={260}
+            gravity={0.24}
+            wind={-0.015}
+            colors={['#FFFFFF', '#FFE7B8', '#1E9E63']}
+            confettiSource={{ x: windowWidth * 0.25, y: 0, w: windowWidth * 0.5, h: 8 }}
+            style={{ position: 'fixed', top: 0, left: 0, zIndex: 10000, opacity: 0.95 }}
+          />
+        </>
       )}
 
       <div className="w-full max-w-md bg-white ios-app-shell shadow-2xl overflow-hidden relative flex flex-col">

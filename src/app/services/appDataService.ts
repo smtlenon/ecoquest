@@ -1,4 +1,4 @@
-import { AppData, createInitialAppData } from '../data';
+import { AppData, createInitialAppData } from '../../data';
 
 const STORAGE_KEY = 'ecoquest.app-data.v1';
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').trim();

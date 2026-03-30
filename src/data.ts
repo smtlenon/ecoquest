@@ -379,4 +379,3 @@ export function createInitialAppData(): AppData {
     claimedRewards: [],
   };
 }
-

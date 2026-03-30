@@ -13,6 +13,7 @@ interface HomeProps {
 
 export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
   const progress = (user.points % 1000) / 1000 * 100; // Simplified level progress
+  const orderedMissions = [...missions].sort((a, b) => Number(a.completed) - Number(b.completed));
 
   return (
     <div className="flex flex-col pb-6 space-y-6">
@@ -82,7 +83,7 @@ export function Home({ user, missions, feed, onMissionSelect }: HomeProps) {
               No missions yet. Add missions from your connected data source.
             </div>
           ) : (
-            missions.map((mission) => (
+            orderedMissions.map((mission) => (
               <MissionCard
                 key={mission.id}
                 mission={mission}

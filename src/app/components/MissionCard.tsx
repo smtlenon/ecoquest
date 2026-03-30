@@ -9,6 +9,14 @@ interface MissionCardProps {
   onSelect: (mission: Mission) => void;
 }
 
+const CATEGORY_LABELS: Record<Mission['category'], string> = {
+  waste: 'Waste',
+  water: 'Water',
+  energy: 'Energy',
+  nature: 'Nature',
+  community: 'Community',
+};
+
 export function MissionCard({ mission, onSelect }: MissionCardProps) {
   return (
     <motion.div 
@@ -30,8 +38,8 @@ export function MissionCard({ mission, onSelect }: MissionCardProps) {
         <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-emerald-700 shadow-sm">
           +{mission.points} PTS
         </div>
-        <div className="absolute top-2 left-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-white capitalize">
-          {mission.category}
+        <div className="absolute top-2 left-2 bg-black/45 backdrop-blur-sm px-2 py-1 rounded-lg text-[11px] font-semibold text-white tracking-wide">
+          {CATEGORY_LABELS[mission.category]}
         </div>
       </div>
       
