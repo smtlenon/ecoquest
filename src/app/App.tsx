@@ -233,6 +233,8 @@ export default function App() {
 
     const SHOW_NAV_DELTA = -3;
     const HIDE_NAV_DELTA = 10;
+    const TOUCH_SHOW_DELTA = 4;
+    const TOUCH_HIDE_DELTA = -8;
 
     lastScrollTopRef.current = Math.max(0, scrollContainer.scrollTop);
 
@@ -268,8 +270,11 @@ export default function App() {
       const touchDelta = currentTouchY - lastTouchYRef.current;
 
       // Finger moving down usually means user wants to scroll content up.
-      if (touchDelta >= 4) {
+      if (touchDelta >= TOUCH_SHOW_DELTA) {
         setIsNavHidden(false);
+      } else if (touchDelta <= TOUCH_HIDE_DELTA) {
+        // Finger moving up means user is pushing content down.
+        setIsNavHidden(true);
       }
 
       lastTouchYRef.current = currentTouchY;
@@ -590,7 +595,10 @@ export default function App() {
           </div>
         ) : (
           <>
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto scrollbar-hide bg-gray-50 relative">
+            <div
+              ref={scrollContainerRef}
+              className="flex-1 overflow-y-auto scrollbar-hide bg-gray-50 relative pb-[calc(env(safe-area-inset-bottom)+6.5rem)]"
+            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentTab}
@@ -607,10 +615,8 @@ export default function App() {
 
             <div
               className={clsx(
-                'overflow-hidden transition-[max-height,opacity,transform,clip-path] duration-300 ease-out',
-                isNavHidden
-                  ? 'max-h-0 opacity-0 translate-y-4 pointer-events-none [clip-path:inset(0_0_100%_0)]'
-                  : 'max-h-[calc(7rem+env(safe-area-inset-bottom))] opacity-100 translate-y-0 pointer-events-auto [clip-path:inset(0_0_0%_0)]'
+                'absolute inset-x-0 bottom-0 z-40 transition-[transform,opacity] duration-300 ease-out will-change-transform',
+                isNavHidden ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100 pointer-events-auto'
               )}
             >
               <Navigation currentTab={currentTab} onTabChange={setCurrentTab} />
