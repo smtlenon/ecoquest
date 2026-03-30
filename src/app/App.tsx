@@ -107,6 +107,7 @@ export default function App() {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const lastScrollTopRef = useRef(0);
   const scrollTickingRef = useRef(false);
+  const lastTouchYRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -256,10 +257,38 @@ export default function App() {
       });
     };
 
+    const handleTouchStart = (event: TouchEvent) => {
+      lastTouchYRef.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const currentTouchY = event.touches[0]?.clientY;
+      if (currentTouchY == null || lastTouchYRef.current == null) return;
+
+      const touchDelta = currentTouchY - lastTouchYRef.current;
+
+      // Finger moving down usually means user wants to scroll content up.
+      if (touchDelta >= 4) {
+        setIsNavHidden(false);
+      }
+
+      lastTouchYRef.current = currentTouchY;
+    };
+
+    const handleTouchEnd = () => {
+      lastTouchYRef.current = null;
+    };
+
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+    scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: true });
+    scrollContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       scrollContainer.removeEventListener('scroll', handleScroll);
+      scrollContainer.removeEventListener('touchstart', handleTouchStart);
+      scrollContainer.removeEventListener('touchmove', handleTouchMove);
+      scrollContainer.removeEventListener('touchend', handleTouchEnd);
     };
   }, [currentTab, hasStarted, isStarting, isDataLoading]);
 
@@ -578,8 +607,10 @@ export default function App() {
 
             <div
               className={clsx(
-                'overflow-hidden transition-[max-height,opacity,transform] duration-300 ease-out',
-                isNavHidden ? 'max-h-0 opacity-0 translate-y-4' : 'max-h-28 opacity-100 translate-y-0'
+                'overflow-hidden transition-[max-height,opacity,transform,clip-path] duration-300 ease-out',
+                isNavHidden
+                  ? 'max-h-0 opacity-0 translate-y-4 pointer-events-none [clip-path:inset(0_0_100%_0)]'
+                  : 'max-h-28 opacity-100 translate-y-0 pointer-events-auto [clip-path:inset(0_0_0%_0)]'
               )}
             >
               <Navigation currentTab={currentTab} onTabChange={setCurrentTab} />
