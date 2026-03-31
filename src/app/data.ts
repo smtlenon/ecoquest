@@ -114,7 +114,7 @@ export const MISSIONS: Mission[] = [
     description: "Make sure all faucets are fully closed - no drips. Submit a photo of your dry sink.",
     points: 70,
     completed: false,
-    image: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    image: 'https://images.unsplash.com/photo-1521207418485-99c705420785?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     id: 'mission-4',
@@ -178,6 +178,15 @@ export const MISSIONS: Mission[] = [
     points: 70,
     completed: false,
     image: 'https://images.pexels.com/photos/14071432/pexels-photo-14071432.jpeg?auto=compress&cs=tinysrgb&w=1080',
+  },
+  {
+    id: 'mission-11',
+    category: 'community',
+    title: 'Fold Your Clothes',
+    description: 'Fold and organize your clean clothes neatly. Submit a photo of your folded stack.',
+    points: 130,
+    completed: false,
+    image: 'https://images.unsplash.com/photo-1567113463300-102a7eb3cb26?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
 ];
 

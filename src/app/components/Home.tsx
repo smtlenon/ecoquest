@@ -15,6 +15,9 @@ interface HomeProps {
 export function Home({ user, missions, feed, onMissionSelect, onNavigateToRewards }: HomeProps) {
   const progress = (user.points % 1000) / 1000 * 100; // Simplified level progress
   const orderedMissions = [...missions].sort((a, b) => Number(a.completed) - Number(b.completed));
+  const completedMissions = missions.filter((mission) => mission.completed).length;
+  const totalMissions = missions.length;
+  const missionProgress = totalMissions > 0 ? (completedMissions / totalMissions) * 100 : 0;
 
   return (
     <div className="flex flex-col pb-6 space-y-6">
@@ -80,8 +83,26 @@ export function Home({ user, missions, feed, onMissionSelect, onNavigateToReward
       <div className="px-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-gray-800">Today&apos;s Missions</h2>
-          <button className="text-emerald-600 text-sm font-semibold">View All</button>
         </div>
+
+        <div className="mb-4 rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Mission Progress</p>
+            <p className="text-sm font-bold text-gray-800">
+              {completedMissions}/{totalMissions}
+            </p>
+          </div>
+          <div className="h-2.5 rounded-full bg-emerald-100 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+              style={{ width: `${missionProgress}%` }}
+            ></div>
+          </div>
+          <p className="mt-2 text-xs text-gray-500">
+            {totalMissions === 0 ? 'No missions yet.' : `${Math.round(missionProgress)}% complete`}
+          </p>
+        </div>
+
         <div className="grid gap-4">
           {missions.length === 0 ? (
             <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-5 text-sm text-gray-500">
